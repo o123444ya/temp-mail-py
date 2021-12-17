@@ -55,7 +55,3 @@ while True:
 		time.sleep(5)#anti ban
 	except KeyboardInterrupt:print('\nCtrl-C');os._exit(1)
 	except Exception as e:print(str(e))
-
-
-
-.
