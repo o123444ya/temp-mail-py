@@ -6,8 +6,8 @@ class mail:
 		self.Request=cloudscraper.create_scraper()
 		self.IsReceiving=True
 	def CheckExpired(self):
-		req_=self.Request.get('https://10minutemail.com/session/secondsLeft')
-		if json.loads(req_.text)['secondsLeft']==0:
+		req_=self.Request.get('https://10minutemail.com/session/expired')
+		if json.loads(req_.text)['expired']:
 			return True
 		else:
 			return False
@@ -15,9 +15,10 @@ class mail:
 		try:
 			for Time in range(600):
 				if self.IsReceiving:
-					sys.stdout.write(f'\r[ 剩餘時間 ] {600-Time} 秒')
+					sys.stdout.write(f'\r[ 剩餘時間 ] {600-Time} 秒 (約 {int((600-Time)/60)} 分鐘 {(600-Time)%60} 秒)')
 					sys.stdout.flush()
 					time.sleep(1)
+				else:return
 		except:return
 	def GetMail(self):
 		req_=self.Request.get('https://10minutemail.com/session/address')
@@ -37,6 +38,7 @@ class mail:
 				txt+=f"\n內容:{reqjs['bodyPreview']}"
 				self.IsReceiving=False
 				return txt
+		else:return "expired"
 print('歡迎使用幻想信箱py\n請勿作為商業用途')
 mail=mail()
 print('取得信箱中...')
@@ -47,8 +49,8 @@ while True:
 	try:
 		get=mail.GetMessage()
 		if get =='expired':print('\n過時\n請重新取得');break
-		if get =='error':print('\n非200狀態錯誤\n請查看是否被封鎖IP\n如無法請聯繫幻想\nhttps://fb.com/o123444ya');break
-		if get =='N':pass
+		elif get =='error':print('\n非200狀態錯誤\n請查看是否被封鎖IP\n如無法請聯繫幻想\nhttps://fb.com/o123444ya');break
+		elif get =='N':pass
 		else:print(get);break
 		time.sleep(5)#anti ban
 	except KeyboardInterrupt:print('\nCtrl-C');os._exit(1)
