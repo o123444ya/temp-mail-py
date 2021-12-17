@@ -14,15 +14,20 @@ class mail:
 	def RemainingTime(self):
 		try:
 			for Time in range(600):
-				if self.IsReceiving:
-					sys.stdout.write(f'\r[ 剩餘時間 ] {600-Time} 秒 (約 {int((600-Time)/60)} 分鐘 {(600-Time)%60} 秒)')
-					sys.stdout.flush()
-					time.sleep(1)
-				else:return
-		except:return
+				sys.stdout.write(f'\r[ 剩餘時間 ] {600-Time} 秒 (約 {int((600-Time)/60)} 分鐘 {(600-Time)%60} 秒)')
+				if not self.IsReceiving:
+					sys.stdout.write(f'\r')
+					return
+				time.sleep(1)
+			sys.stdout.write(f'\r')
+			return
+		except:
+			sys.stdout.write('\r[ 錯誤 ] 發生了未知的錯誤')
+			return
 	def GetMail(self):
 		req_=self.Request.get('https://10minutemail.com/session/address')
 		self.Request.cookies=req_.cookies
+		if req_.status_code==403:return '403'
 		return json.loads(req_.text)['address']
 	def GetMessage(self):
 		if not self.CheckExpired():
@@ -42,7 +47,9 @@ class mail:
 print('歡迎使用幻想信箱py\n請勿作為商業用途')
 mail=mail()
 print('取得信箱中...')
-print(mail.GetMail())
+GetMail=mail.GetMail()
+if GetMail=='403':exit('您已被該網站封鎖\n請稍後再試.')
+print(GetMail)
 print('取得成功\n正在檢測收信...')
 threading.Thread(target=mail.RemainingTime).start()
 while True:
